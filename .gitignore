@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+resume-adapt/node_modules/
+resume-adapt/server/node_modules/
+
+# Production builds
+dist/
+resume-adapt/dist/
+
+# Local databases & logs
+*.db
+*.db-journal
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Temporary LaTeX builds
+.temp/
+builds/
+resume-adapt/server/builds/
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.pdf
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+

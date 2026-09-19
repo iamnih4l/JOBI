@@ -1,0 +1,25 @@
+{
+  "name": "jobi",
+  "version": "2.4.0",
+  "private": true,
+  "description": "Jobi — Local-First AI Resume Adapter",
+  "scripts": {
+    "dev": "npm --prefix resume-adapt run dev",
+    "server": "npm --prefix resume-adapt run server",
+    "build": "npm --prefix resume-adapt run build",
+    "setup": "npm --prefix resume-adapt run setup",
+    "doctor": "npm --prefix resume-adapt run doctor"
+  },
+  "keywords": [
+    "jobi",
+    "resume",
+    "latex",
+    "local-first",
+    "ollama",
+    "ai",
+    "ats"
+  ],
+  "author": "Jobi Open Source",
+  "license": "MIT"
+}
+
