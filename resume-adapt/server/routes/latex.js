@@ -30,8 +30,8 @@ router.post('/compile', (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed writing LaTeX source: ' + writeErr.message });
   }
 
-  // Execute pdflatex safely with 15s timeout
-  exec('pdflatex -interaction=nonstopmode -halt-on-error resume.tex', { cwd: tempDir, timeout: 15000 }, (error, stdout, stderr) => {
+  // Execute pdflatex safely with 120s timeout (allows time for MiKTeX auto-installs)
+  exec('pdflatex -interaction=nonstopmode -halt-on-error resume.tex', { cwd: tempDir, timeout: 120000 }, (error, stdout, stderr) => {
     const pdfPath = path.join(tempDir, 'resume.pdf');
     const logPath = path.join(tempDir, 'resume.log');
 
@@ -57,6 +57,11 @@ router.post('/compile', (req, res) => {
 
       // Check if pdflatex itself is missing
       const isMissing = error && (error.code === 'ENOENT' || error.message.includes('not recognized') || error.message.includes('not found'));
+
+      // Log the failed LaTeX source to help debug missing braces
+      try {
+        fs.writeFileSync(path.join(__dirname, '..', '..', 'failed_latex.tex'), latexStr, 'utf8');
+      } catch (err) {}
 
       // Clean up tempDir
       try {

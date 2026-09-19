@@ -53,7 +53,7 @@ export const KNOWN_SKILLS = [
 // Extract bullet items like \resumeItem{...}
 export function extractBulletItems(latex: string): string[] {
   const bullets: string[] = [];
-  const regex = /\\resumeItem\{([\s\S]*?)\}(?=\s*\\resumeItem|\s*\\resumeItemListEnd|$)/g;
+  const regex = /\\resumeItem\{([\s\S]*?)\}(?=\s*\\resumeItem|\s*\\resumeItemListEnd|\s*\\end\{|$)/g;
   let match;
   while ((match = regex.exec(latex)) !== null) {
     const clean = match[1].trim();

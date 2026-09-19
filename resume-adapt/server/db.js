@@ -205,37 +205,142 @@ dbInstance.exec(`
   );
 `);
 
-// Default LaTeX Master Resume template (Anthropic-optimized Dr. Ethan Vance from Jobi design)
-const DEFAULT_MASTER_LATEX = `\\documentclass[letterpaper,10pt]{article}
-\\usepackage{latexsym,fullpage,hyperref,titlesec}
-% ------------------ JOBI MASTER RESUME ------------------
+// Default LaTeX Master Resume template (Anonymized User Template)
+const DEFAULT_MASTER_LATEX = `\\documentclass[11pt, a4paper]{article}
+
+% --- PACKAGES & GEOMETRY ---
+% Aggressively tightened margins to force a single-page layout
+\\usepackage[a4paper, top=0.5cm, bottom=0.5cm, left=0.6cm, right=0.6cm]{geometry}
+\\usepackage[T1]{fontenc}
+\\usepackage[utf8]{inputenc}
+\\usepackage{helvet}
+\\renewcommand{\\familydefault}{\\sfdefault}
+
+\\usepackage{enumitem}
+% Tightened list spacing to save vertical space
+\\setlist[itemize]{label=-, leftmargin=*, nosep, itemsep=0pt, parsep=0pt, topsep=1pt}
+
+\\usepackage{titlesec}
+\\usepackage{tabularx}
+\\usepackage[dvipsnames]{xcolor}
+\\usepackage{hyperref}
+
+\\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=black,
+}
+
+% --- CUSTOM COMMANDS ---
+% Reduced spacing around section headers
+\\titleformat{\\section}{\\large\\bfseries\\uppercase}{}{0pt}{}[\\vspace{1pt}\\titlerule\\vspace{3pt}]
+\\titlespacing{\\section}{0pt}{4pt}{2pt} 
+
+\\newcommand{\\resumeItem}[1]{\\item \\small{#1}}
+\\newcommand{\\resumeSubheading}[4]{
+  \\vspace{1pt}\\noindent
+    \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+      \\textbf{#1} & \\textbf{#2} \\\\
+      \\textit{\\small#3} & \\textit{\\small #4} \\\\
+    \\end{tabular*}\\vspace{-4pt}
+}
+\\newcommand{\\resumeProjectHeading}[2]{
+  \\vspace{1pt}\\noindent
+    \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+      \\textbf{#1} & \\textbf{#2} \\\\
+    \\end{tabular*}\\vspace{-4pt}
+}
+
+\\setlength{\\tabcolsep}{0in}
+
 \\begin{document}
-\\heading{Dr. Ethan Vance}{ethan@vance.ai}{github.com/evance-ml}
 
-\\section{Work Experience}
-\\resumeSubheading
-    {Senior Systems Engineer}{2022 -- Present}
-    {Autonomous AI Lab}{San Francisco, CA}
-\\resumeItemListStart
-  \\resumeItem{\\textbf{Distributed Inference:} Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.}
-  \\resumeItem{\\textbf{Local Architecture:} Architected air-gapped evaluation pipeline eliminating external API calls while preserving deterministic benchmark scoring.}
-  \\resumeItem{Implemented pipeline-parallel tensor partitioning over InfiniBand fabric across 64x H100 GPUs.}
-\\resumeItemListEnd
+% --- HEADER ---
+\\begin{center}
+    {\\Huge \\textbf{Jane Doe}} \\\\ \\vspace{2pt}
+    \\small 
+    Software Engineer \\\\ \\vspace{2pt}
+    \\href{mailto:jane.doe@example.com}{jane.doe@example.com} $\\cdot$ +1 555-0100 $\\cdot$ San Francisco, CA \\\\ \\vspace{2pt}
+    \\href{https://linkedin.com/in/janedoe}{linkedin.com/in/janedoe} $\\cdot$ 
+    \\href{https://github.com/janedoe}{github.com/janedoe} $\\cdot$
+    \\href{https://janedoe.dev}{janedoe.dev}
+\\end{center}
 
-\\resumeSubheading
-    {Distributed Systems Lead}{2020 -- 2022}
-    {Nexus Tensor Core}{Redwood City, CA}
-\\resumeItemListStart
-  \\resumeItem{Engineered zero-copy streaming protocols in C++ & Rust for continuous token delivery.}
-  \\resumeItem{Reduced cold-start VM orchestration overhead by 68% via pre-allocated GPU unified memory.}
-\\resumeItemListEnd
+% --- PROFESSIONAL SUMMARY ---
+\\section{Professional Summary}
+\\small{Results-driven Software Engineer with experience in building scalable backend services and distributed systems. Proficient in cloud architecture and optimizing data pipelines. Passionate about applying modern software engineering principles to solve complex, high-impact problems.}
 
-\\section{Key Technical Artifacts}
-\\resumeSubheading{Flash-Attention Kernel Port}{PyTorch / Triton}{}{}
-  \\resumeItem{Synthesized memory-fused backward pass yielding 1.34x compute throughput on Hopper SM90.}
+% --- EDUCATION ---
+\\section{Education}
+\\begin{itemize}[leftmargin=0in, label={}]
+    \\resumeSubheading
+      {State University of Technology}{Sep 2020 -- Jun 2024}
+      {Bachelor of Science in Computer Science}{San Francisco, CA}
+      \\begin{itemize}
+        \\resumeItem{\\textbf{Involvement:} President of the Computer Science Society, Open Source Club.}
+      \\end{itemize}
+\\end{itemize}
 
-\\section{Core Skills & Competencies}
-\\resumeItem{Languages & Frameworks: PyTorch, vLLM, CUDA, Triton, TensorRT-LLM, NCCL, C++, Rust, Python, Docker, Kubernetes.}
+% --- SKILLS ---
+\\section{Technical Expertise}
+\\begin{itemize}[leftmargin=0in, label={}]
+    \\item \\textbf{Languages:} Python, Java, C++, TypeScript, SQL, Bash
+    \\item \\textbf{Frameworks \\& Libraries:} React, Node.js, Spring Boot, PyTorch, TensorFlow
+    \\item \\textbf{Backend \\& Systems:} REST API Development, Distributed Architecture, Vector Databases
+    \\item \\textbf{Developer Tools:} Git, Docker, Kubernetes, AWS, GCP, CI/CD
+\\end{itemize}
+
+% --- ENGINEERING PROJECTS ---
+\\section{Engineering \\& Projects}
+\\begin{itemize}[leftmargin=0in, label={}]
+
+    \\resumeProjectHeading
+      {Distributed Task Scheduler $|$ \\normalfont\\textit{Go, gRPC, Redis, Docker}}{2024}
+      \\begin{itemize}
+        \\resumeItem{Architected a scalable, distributed task scheduling system capable of processing 10,000+ jobs per second across multiple worker nodes.}
+        \\resumeItem{Implemented a fault-tolerant message queue using Redis streams to guarantee at-least-once delivery semantics for critical backend workflows.}
+      \\end{itemize}
+
+    \\resumeProjectHeading
+      {Real-time Analytics Dashboard $|$ \\normalfont\\textit{React, TypeScript, WebSockets, Node.js}}{2023}
+      \\begin{itemize}
+        \\resumeItem{Built a high-performance analytics dashboard supporting live data visualization of streaming metrics with sub-second latency.}
+        \\resumeItem{Optimized React rendering cycles and implemented virtualization to smoothly display thousands of concurrent data points without UI blocking.}
+      \\end{itemize}
+
+\\end{itemize}
+
+% --- PROFESSIONAL EXPERIENCE ---
+\\section{Professional Experience}
+\\begin{itemize}[leftmargin=0in, label={}]
+
+    \\resumeSubheading
+      {Software Engineering Intern}{Jun 2023 -- Aug 2023}
+      {Tech Innovations Inc.}{San Francisco, CA}
+      \\begin{itemize}
+        \\resumeItem{Developed and deployed microservices in Go, reducing legacy system processing times by 40\\% through concurrent execution.}
+        \\resumeItem{Collaborated closely with cross-functional teams to integrate new RESTful endpoints into the primary customer-facing application.}
+      \\end{itemize}
+
+    \\resumeSubheading
+      {Backend Developer (Freelance)}{Jan 2022 -- Dec 2022}
+      {Global Solutions}{Remote}
+      \\begin{itemize}
+        \\resumeItem{Automated digital workflows to streamline asset scheduling and deployment, optimizing content delivery pipelines for 50+ clients.}
+        \\resumeItem{Analyzed system performance metrics to enhance database queries, resulting in a 25\\% reduction in API response times.}
+      \\end{itemize}
+
+\\end{itemize}
+
+% --- CERTIFICATIONS & PROGRAMS ---
+\\section{Certifications \\& Job Simulations}
+\\begin{itemize}[leftmargin=0in, label={}]
+    \\item \\textbf{Certifications:} AWS Certified Developer Associate $\\cdot$ Google Cloud Professional Cloud Architect
+    \\item \\textbf{Simulations:} JPMorgan Chase \\& Co. (Software Engineering) $\\cdot$ Electronic Arts (Data Structures)
+\\end{itemize}
+
+\\enlargethispage{1.5cm}
 \\end{document}`;
 
 // Seed default records if empty
@@ -247,13 +352,13 @@ try {
       INSERT INTO master_resumes (title, raw_latex, parsed_json)
       VALUES (?, ?, ?)
     `).run(
-      'Dr. Ethan Vance — Master Profile',
+      'Jane Doe — Master Profile',
       DEFAULT_MASTER_LATEX,
       JSON.stringify({
-        name: 'Dr. Ethan Vance',
-        email: 'ethan@vance.ai',
-        github: 'github.com/evance-ml',
-        skills: ['pytorch', 'vllm', 'cuda', 'triton', 'c++', 'rust', 'python', 'docker', 'kubernetes', 'infiniband']
+        name: 'Jane Doe',
+        email: 'jane.doe@example.com',
+        github: 'github.com/janedoe',
+        skills: ['python', 'java', 'c++', 'typescript', 'react', 'node.js', 'go', 'docker', 'kubernetes', 'aws']
       })
     );
   }

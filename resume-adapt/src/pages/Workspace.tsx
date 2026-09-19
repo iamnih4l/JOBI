@@ -38,42 +38,14 @@ export default function Workspace() {
 
   // Semantic Diff Drawer
   const [diffDrawerOpen, setDiffDrawerOpen] = useState(false);
-  const [diffItems, setDiffItems] = useState<SemanticDiffItem[]>([
-    {
-      id: "diff-1",
-      section: "Work Experience",
-      original: "Led internal ML deployment team maintaining containerized HuggingFace transformers models across AWS EC2 instances, achieving 99.8% uptime.",
-      adapted: "Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.",
-      rationale: "Emphasizes multi-node clusters, vLLM, and custom CUDA kernels requested in target JD.",
-      keywords: ["vLLM", "CUDA", "Low-latency"],
-      status: "pending"
-    },
-    {
-      id: "diff-2",
-      section: "Work Experience",
-      original: "Maintained pipeline automation for testing model checkpoints across staging nodes.",
-      adapted: "Architected air-gapped evaluation pipeline eliminating external API calls while preserving deterministic benchmark scoring.",
-      rationale: "Highlights air-gapped architecture and deterministic evaluation.",
-      keywords: ["Air-gapped", "Inference", "Local Architecture"],
-      status: "pending"
-    },
-    {
-      id: "diff-3",
-      section: "Key Technical Artifacts",
-      original: "Wrote PyTorch utility for faster matrix operations.",
-      adapted: "Synthesized memory-fused backward pass yielding 1.34x compute throughput on Hopper SM90.",
-      rationale: "Directly addresses Triton / Hopper kernel requirements.",
-      keywords: ["Triton", "CUDA", "Hopper SM90"],
-      status: "pending"
-    }
-  ]);
+  const [diffItems, setDiffItems] = useState<SemanticDiffItem[]>([]);
 
   // Inline Suggestion State
-  const [showInlineSuggestion, setShowInlineSuggestion] = useState(true);
+  const [showInlineSuggestion, setShowInlineSuggestion] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
-  const [inlineSuggestionText, setInlineSuggestionText] = useState(
-    "Adapted line 12: Emphasized vLLM multi-node cluster & custom CUDA to address Anthropic's low-latency inference requirements."
-  );
+  const [inlineSuggestionText, setInlineSuggestionText] = useState("");
+  const [adaptedInlineBullet, setAdaptedInlineBullet] = useState("");
+  const [selectedBullet, setSelectedBullet] = useState<{ section: string; text: string } | null>(null);
 
   // Load Master Resume & Job List on mount
   useEffect(() => {
@@ -134,7 +106,7 @@ export default function Workspace() {
   }, [parsedDoc, activeJdParsed]);
 
   // Handle Compile
-  const handleCompile = async () => {
+  const handleCompile = async (sourceToCompile = latexSource) => {
     setIsCompiling(true);
     setCompilerError(null);
     const start = performance.now();
@@ -143,7 +115,7 @@ export default function Workspace() {
       const res = await fetch("/api/latex/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latexStr: latexSource })
+        body: JSON.stringify({ latexStr: sourceToCompile })
       });
       const response = await res.json();
       const elapsed = Math.round(performance.now() - start);
@@ -180,7 +152,7 @@ export default function Workspace() {
   };
 
   // Handle Download PDF
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (compiledPdfUrl) {
       const a = document.createElement("a");
       a.href = compiledPdfUrl;
@@ -189,11 +161,18 @@ export default function Workspace() {
       a.click();
       document.body.removeChild(a);
     } else {
-      handleCompile();
+      await handleCompile();
     }
   };
 
-  // Handle Add New Job Target
+  // Helper to dynamically update the job title in the LaTeX header
+  const updateJobTitle = (source: string, title: string) => {
+    if (!title) return source;
+    // Target the Jane Doe template structure: \small \n [Title] \\ \vspace{2pt} \n \href{mailto
+    return source.replace(/(\\small\s*\n\s*)(.*?)(\s*\\\\ \\vspace\{2pt\}\n\s*\\href\{mailto)/, `$1${title}$3`);
+  };
+
+  // Handle Save New Job Target
   const handleSaveJobTarget = async () => {
     if (!newText.trim()) {
       alert("Please paste a job description.");
@@ -218,6 +197,58 @@ export default function Workspace() {
         setNewTitle("");
         setNewCompany("");
         setNewText("");
+
+        let updatedSource = latexSource;
+        if (data.job.title) {
+          updatedSource = updateJobTitle(updatedSource, data.job.title);
+          setLatexSource(updatedSource);
+          handleCompile(updatedSource);
+        }
+
+        // Auto-generate up to 2 diffs based on the new job target
+        const doc = parseLatex(masterBaseLatex);
+        let candidates: {section: string, original: string}[] = [];
+        for (const sec of doc.sections) {
+          if (sec.items && sec.items.length > 0) {
+             candidates.push(...sec.items.map(item => ({ section: sec.name, original: item })));
+          }
+        }
+        
+        candidates = candidates.slice(0, 2); 
+        
+        if (candidates.length > 0) {
+           const newDiffs: SemanticDiffItem[] = [];
+           for (let i=0; i < candidates.length; i++) {
+              const c = candidates[i];
+              try {
+                const adaptRes = await fetch("/api/ollama/adapt", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    originalBullet: c.original,
+                    jobDescription: data.job.raw_text,
+                    model: activeModel
+                  })
+                });
+                const adaptData = await adaptRes.json();
+                if (adaptData.success && adaptData.adapted) {
+                  newDiffs.push({
+                    id: `diff-${Date.now()}-${i}`,
+                    section: c.section,
+                    original: c.original,
+                    adapted: adaptData.adapted,
+                    rationale: adaptData.rationale,
+                    keywords: adaptData.keywords || [],
+                    status: "pending"
+                  });
+                }
+              } catch (e) {
+                 console.error("Diff generation error", e);
+              }
+           }
+           setDiffItems(newDiffs);
+           if (newDiffs.length > 0) setDiffDrawerOpen(true);
+        }
       }
     } catch (e: any) {
       alert("Failed saving job target: " + e.message);
@@ -229,12 +260,16 @@ export default function Workspace() {
     const item = diffItems.find(d => d.id === diffId);
     if (!item) return;
 
+    let newSource = latexSource;
     if (item.original && latexSource.includes(item.original)) {
-      setLatexSource(latexSource.replace(item.original, item.adapted));
+      newSource = latexSource.replace(item.original, item.adapted);
     } else {
       // Append adapted bullet under section if exact match not found
-      setLatexSource(latexSource + `\n\\resumeItem{${item.adapted}}`);
+      newSource = latexSource + `\n\\resumeItem{${item.adapted}}`;
     }
+    
+    setLatexSource(newSource);
+    handleCompile(newSource);
 
     setDiffItems(diffItems.map(d => d.id === diffId ? { ...d, status: "accepted" } : d));
   };
@@ -248,6 +283,7 @@ export default function Workspace() {
       }
     });
     setLatexSource(updated);
+    handleCompile(updated);
     setDiffItems(diffItems.map(d => ({ ...d, status: "accepted" })));
   };
 
@@ -258,29 +294,31 @@ export default function Workspace() {
 
   // Handle Inline Suggestion Accept
   const handleAcceptInline = () => {
-    const targetOld = "Led internal ML deployment team maintaining containerized HuggingFace transformers models across AWS EC2 instances, achieving 99.8% uptime.";
-    const targetNew = "\\textbf{Distributed Inference:} Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.";
-    if (latexSource.includes(targetOld)) {
-      setLatexSource(latexSource.replace(targetOld, targetNew));
+    if (selectedBullet && adaptedInlineBullet && latexSource.includes(selectedBullet.text)) {
+      const newSource = latexSource.replace(selectedBullet.text, adaptedInlineBullet);
+      setLatexSource(newSource);
+      handleCompile(newSource);
     }
     setShowInlineSuggestion(false);
   };
 
   // Handle Refine Locally with Ollama
   const handleRefineLocally = async () => {
+    if (!selectedBullet) return;
     setIsRefining(true);
     try {
       const res = await fetch("/api/ollama/adapt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          originalBullet: "Led internal ML deployment team maintaining containerized HuggingFace transformers models across AWS EC2 instances, achieving 99.8% uptime.",
-          jobDescription: activeJob?.raw_text || "Low-latency distributed inference engineer with CUDA and vLLM experience.",
+          originalBullet: selectedBullet.text,
+          jobDescription: activeJob?.raw_text || "Software engineer role",
           model: activeModel
         })
       });
       const data = await res.json();
       if (data.success && data.adapted) {
+        setAdaptedInlineBullet(data.adapted);
         setInlineSuggestionText(`Adapted: ${data.adapted} (${data.rationale})`);
       }
     } catch (e) {
@@ -290,10 +328,81 @@ export default function Workspace() {
     }
   };
 
+  // Magic Auto-Adapt: Automatically adapt up to 5 un-matched bullets
+  const handleAutoAdapt = async () => {
+    if (!activeJob) {
+      alert("Please set an active job target first.");
+      return;
+    }
+    
+    setIsRefining(true);
+    try {
+      const doc = parseLatex(latexSource);
+      let candidates: {section: string, original: string}[] = [];
+      for (const sec of doc.sections) {
+        if (sec.items && sec.items.length > 0) {
+           candidates.push(...sec.items.map(item => ({ section: sec.name, original: item })));
+        }
+      }
+      
+      candidates = candidates.slice(0, 5); 
+      
+      const promises = candidates.map(async (c) => {
+        try {
+          const adaptRes = await fetch("/api/ollama/adapt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              originalBullet: c.original,
+              jobDescription: activeJob.raw_text,
+              model: activeModel
+            })
+          });
+          const adaptData = await adaptRes.json();
+          if (adaptData.success && adaptData.adapted) {
+            return { original: c.original, adapted: adaptData.adapted };
+          }
+        } catch (e) {
+          console.error("Auto adapt error", e);
+        }
+        return null;
+      });
+      
+      const results = await Promise.all(promises);
+      let newSource = latexSource;
+      for (const res of results) {
+        if (res && newSource.includes(res.original)) {
+          newSource = newSource.replace(res.original, res.adapted);
+        }
+      }
+      
+      setLatexSource(newSource);
+      // Automatically compile after magic adapt
+      await handleCompile(newSource);
+    } catch(e: any) {
+      alert("Auto adapt failed: " + e.message);
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  const handleSelectSection = (sec: any) => {
+    if (sec.items && sec.items.length > 0) {
+      const bullet = sec.items[0];
+      setSelectedBullet({ section: sec.name, text: bullet });
+      setShowInlineSuggestion(true);
+      setInlineSuggestionText("Click 'Refine locally' to adapt the first bullet of this section for the target job.");
+      setAdaptedInlineBullet("");
+    }
+  };
+
   // Quick tool: Add Targeted Project
   const handleAddProject = () => {
-    const projectSnippet = `\n\\resumeSubheading{Air-Gapped Local Inference Pipeline}{PyTorch / Ollama}{}{}\n  \\resumeItem{Architected 100\\% on-device deterministic parser achieving zero external telemetry.}\n`;
-    setLatexSource(latexSource.replace("\\end{document}", `${projectSnippet}\\end{document}`));
+    const missing = matchAnalysis.missingSkills.join(", ") || "Relevant Technologies";
+    const projectSnippet = `\n\\resumeSubheading{Targeted Integration Project}{${missing}}{}{}\n\\begin{itemize}\n  \\resumeItem{Architected solution directly utilizing ${missing} to achieve target requirements.}\n\\end{itemize}\n`;
+    const newSource = latexSource.replace("\\end{document}", `${projectSnippet}\\end{document}`);
+    setLatexSource(newSource);
+    handleCompile(newSource);
   };
 
   // Quick tool: Re-rank by JD Relevance
@@ -558,6 +667,7 @@ export default function Workspace() {
                     {parsedDoc.sections.map((sec, i) => (
                       <div
                         key={i}
+                        onClick={() => handleSelectSection(sec)}
                         className={`flex items-center justify-between px-2.5 py-2 rounded-xl transition-colors cursor-pointer ${
                           sec.type === "experience"
                             ? "bg-orange-50 border border-orange-200/80 text-[#FF5C35] font-bold shadow-2xs"
@@ -637,6 +747,17 @@ export default function Workspace() {
                 <div className="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-sm flex flex-col gap-2">
                   <span className="text-xs font-extrabold text-stone-900 tracking-wider uppercase mb-1">Quick Tools</span>
                   <button
+                    onClick={handleAutoAdapt}
+                    disabled={isRefining}
+                    className="w-full text-left px-3 py-2 bg-gradient-to-r from-[#FF5C35]/10 to-orange-100/30 hover:from-[#FF5C35]/20 hover:to-orange-100/50 text-[#FF5C35] rounded-xl text-xs font-bold flex items-center justify-between transition-colors border border-orange-200/60 disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[17px]">auto_fix</span>
+                      <span>{isRefining ? "Adapting..." : "Magic Auto-Adapt"}</span>
+                    </span>
+                    <span className="text-[10px] bg-white border border-orange-200 text-[#FF5C35] rounded px-1.5 py-0.5 font-mono">5 MAX</span>
+                  </button>
+                  <button
                     onClick={handleAddProject}
                     className="w-full text-left px-3 py-2 bg-[#FAF8F5] hover:bg-stone-100 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors border border-stone-200/60"
                   >
@@ -691,6 +812,15 @@ export default function Workspace() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleCompile()}
+                      disabled={isCompiling}
+                      className="h-7 px-3 mr-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs disabled:opacity-50"
+                      title="Sync editor changes to PDF"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">{isCompiling ? "sync" : "play_arrow"}</span>
+                      <span>{isCompiling ? "Building..." : "Run"}</span>
+                    </button>
                     <button
                       onClick={handleDownloadTex}
                       className="p-1 hover:bg-stone-200/70 text-stone-600 hover:text-stone-900 rounded-lg transition-colors"
@@ -773,6 +903,15 @@ export default function Workspace() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
+                      onClick={() => handleCompile()}
+                      disabled={isCompiling}
+                      className="h-7 px-3 bg-[#FF5C35] hover:bg-[#E04B26] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs disabled:opacity-50"
+                      title="Compile Preview to see edits"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">{isCompiling ? "sync" : "refresh"}</span>
+                      <span>{isCompiling ? "Compiling..." : "Refresh PDF"}</span>
+                    </button>
+                    <button
                       onClick={handleDownloadTex}
                       className="h-7 px-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
                       title="Download .tex"
@@ -800,86 +939,23 @@ export default function Workspace() {
                       title="Compiled Resume PDF Preview"
                     />
                   ) : (
-                    /* Rendered Resume Sheet (Physical Paper Aesthetic) */
-                    <div className="w-full max-w-[430px] bg-white text-stone-900 p-6 rounded-md shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-stone-200/60 select-text text-[10px] leading-[14px] overflow-y-auto" id="rendered-pdf">
-                      {/* Header */}
-                      <div className="text-center pb-2">
-                        <h1 className="text-[17px] font-extrabold tracking-tight text-stone-900 leading-none">DR. ETHAN VANCE</h1>
-                        <div className="text-[9px] text-stone-500 mt-1 font-mono">
-                          ethan@vance.ai • San Francisco, CA • github.com/evance-ml
-                        </div>
-                        <div className="w-full h-[1.5px] bg-stone-900 mt-2" />
+                    /* Uncompiled State */
+                    <div className="w-full max-w-[430px] flex flex-col items-center justify-center text-center p-8 text-stone-500">
+                      <div className="w-16 h-16 rounded-full bg-stone-200/50 flex items-center justify-center mb-4">
+                        <span className="material-symbols-outlined text-[32px] text-stone-400">picture_as_pdf</span>
                       </div>
-
-                      {/* Work Experience */}
-                      <div className="mt-3">
-                        <div className="p-1 flex items-center justify-between">
-                          <h2 className="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Work Experience</h2>
-                          <span className="text-[8px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-mono font-bold">
-                            {activeJob?.company || "Target"} Adapted
-                          </span>
-                        </div>
-                        <div className="w-full h-[0.5px] bg-stone-300 mb-1.5" />
-
-                        {/* Job 1 */}
-                        <div className="p-1.5 rounded-lg mb-2 bg-orange-50/30 border border-orange-100">
-                          <div className="flex justify-between items-baseline font-bold text-stone-900">
-                            <span>Senior Systems Engineer — Autonomous AI Lab</span>
-                            <span className="text-[9px] text-stone-500 font-normal font-mono">2022 – Present</span>
-                          </div>
-                          <ul className="list-disc pl-3 text-stone-700 space-y-1 mt-1 text-[9px] leading-[13px]">
-                            <li className="bg-emerald-100/60 text-stone-900 p-1 rounded-md border-l-2 border-emerald-500 font-medium">
-                              <span className="font-bold text-emerald-950">Distributed Inference:</span> Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.
-                            </li>
-                            <li className="bg-emerald-100/60 text-stone-900 p-1 rounded-md border-l-2 border-emerald-500 font-medium">
-                              <span className="font-bold text-emerald-950">Local Architecture:</span> Architected air-gapped evaluation pipeline eliminating external API calls while preserving deterministic benchmark scoring.
-                            </li>
-                            <li className="pl-0.5">
-                              Implemented pipeline-parallel tensor partitioning over InfiniBand fabric across 64x H100 GPUs.
-                            </li>
-                          </ul>
-                        </div>
-
-                        {/* Job 2 */}
-                        <div className="p-1 rounded mb-2">
-                          <div className="flex justify-between items-baseline font-bold text-stone-900">
-                            <span>Distributed Systems Lead — Nexus Tensor Core</span>
-                            <span className="text-[9px] text-stone-500 font-normal font-mono">2020 – 2022</span>
-                          </div>
-                          <ul className="list-disc pl-3 text-stone-600 space-y-1 mt-1 text-[9px] leading-[13px]">
-                            <li>Engineered zero-copy streaming protocols in C++ &amp; Rust for continuous token delivery.</li>
-                            <li>Reduced cold-start VM orchestration overhead by 68% via pre-allocated GPU unified memory.</li>
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* Selected Projects */}
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between p-1">
-                          <h2 className="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Selected Projects</h2>
-                          <span className="text-[8px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-mono font-bold">Hopper SM90</span>
-                        </div>
-                        <div className="w-full h-[0.5px] bg-stone-300 mb-1.5" />
-                        <div className="mb-1.5 p-1">
-                          <div className="flex justify-between items-baseline font-bold text-stone-900">
-                            <span>Flash-Attention Kernel Port (Triton / CUDA)</span>
-                            <span className="text-[8px] text-stone-400 font-mono">github.com/evance/fa-sm90</span>
-                          </div>
-                          <p className="text-stone-600 text-[9px] leading-[12px] mt-0.5">
-                            Synthesized memory-fused backward pass yielding 1.34x compute throughput on Hopper SM90 architectures.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Core Competencies */}
-                      <div className="mt-3 p-1">
-                        <h2 className="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Skills &amp; Systems Matrix</h2>
-                        <div className="w-full h-[0.5px] bg-stone-300 mb-1.5" />
-                        <div className="text-[9px] text-stone-600 leading-[14px]">
-                          <span className="font-bold text-stone-900">Core Systems:</span> PyTorch, vLLM, CUDA, Triton, TensorRT-LLM, NCCL, C++, Rust.<br />
-                          <span className="font-bold text-stone-900">Infrastructure:</span> Slurm, Kubernetes, InfiniBand, Linux Kernel eBPF, Docker.
-                        </div>
-                      </div>
+                      <h3 className="text-sm font-bold text-stone-700 mb-1">Preview Not Rendered</h3>
+                      <p className="text-xs text-stone-500 mb-6 max-w-[250px] leading-relaxed">
+                        The live preview requires PDF compilation to accurately render the LaTeX styling.
+                      </p>
+                      <button
+                        onClick={() => handleCompile()}
+                        disabled={isCompiling}
+                        className="px-5 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">{isCompiling ? "sync" : "play_arrow"}</span>
+                        <span>{isCompiling ? "Compiling Engine..." : "Compile Live PDF"}</span>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1043,6 +1119,9 @@ export default function Workspace() {
                       onClick={() => {
                         setActiveJob(j);
                         setActiveFileName(`resume_${j.company.toLowerCase()}_v1.tex`);
+                        const updatedSource = updateJobTitle(latexSource, j.title);
+                        setLatexSource(updatedSource);
+                        handleCompile(updatedSource);
                         setShowJobModal(false);
                       }}
                       className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors ${

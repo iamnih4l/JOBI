@@ -1,0 +1,95 @@
+\documentclass[letterpaper,10pt]{article}
+\usepackage{latexsym,fullpage,hyperref,titlesec,enumitem}
+\usepackage[margin=0.5in]{geometry}
+
+\newcommand{\heading}[3]{
+  \begin{center}
+    {\Huge \textbf{#1}} \\ \vspace{4pt}
+    {#2} \\ \vspace{2pt}
+    \href{https://#3}{#3}
+  \end{center}
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{2pt}\noindent
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.15in, label={--}]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumeItem}[1]{\item\small{#1 \vspace{-2pt}}}
+
+\begin{document}
+\heading{Mohammed Nihal}{AI Software Engineer}{linkedin.com/in/iam-nih4l}
+
+\section*{Professional Summary}
+AI Software Engineer focused on Generative AI, multi-agent reasoning frameworks, and scalable AI systems. Blends a rigorous technical foundation in machine learning and computational psychology with a product-driven approach. Proven track record of architecting AI workflows and optimizing data pipelines to build high-impact applications.
+
+\section*{Education}
+\resumeSubheading
+  {Sahyadri College of Engineering \& Management}{Sep 2023 -- Sep 2027}
+  {Bachelor of Technology (BTech) in Artificial Intelligence}{Mangaluru, India}
+\resumeItemListStart
+  \resumeItem{extbf{Technical Leadership:} Collaborated as a creative lead on large-scale tech events (Synergia National Tech Fest, Zenken Club), demonstrating experience in managing complex technical projects and teams.}
+\resumeItemListEnd
+
+\section*{Technical Expertise}
+\begin{itemize}[leftmargin=0.15in, label={}]
+  \resumeItem{extbf{Programming Languages:} Proficient in Python, with experience leveraging PyTorch for deep learning models and CUDA for GPU acceleration.}
+  \resumeItem{extbf{Deep Learning \& Large Language Models:} Designed and implemented multi-agent systems leveraging PyTorch and vLLM for efficient large-scale model evaluation, utilizing OpenAI API and Gemini API for prompt engineering and LLM assessment.}
+  \resumeItem{extbf{Distributed Systems:} Designed and implemented scalable distributed architectures using PyTorch and CUDA for low-latency C++ streaming applications, leveraging Docker and Kubernetes for containerization and orchestration.}
+  \resumeItem{extbf{Technical Expertise:} Proficient in PyTorch and C++ streaming for low-latency applications, with experience deploying models using Docker and managing complex systems with Kubernetes.}
+\end{itemize}
+
+\section*{Engineering \& AI Projects}
+\resumeSubheading
+  {CouncilAI}{2026}
+  {Python, Agentic Reasoning, Multi-Modal Models, System Design}{}
+\resumeItemListStart
+  \resumeItem{\textbf{Designed and implemented} a high-performance distributed system leveraging PyTorch and CUDA for efficient processing of large-scale medical imaging datasets, including MRI, CT, and X-ray analysis pipelines.}
+  \resumeItem{\textbf{Designed and implemented} a low-latency C++ streaming framework for agentic reasoning in PyTorch, leveraging model councils to debate and synthesize diagnostic outputs, resulting in improved complex inference reliability.}
+  \resumeItem{\textbf{Designed and implemented} a real-time anomaly detection system using PyTorch, leveraging CUDA for accelerated computations, to identify multivariate telemetry irregularities in simulated spacecraft environments.}
+  \resumeItem{\textbf{Designed and implemented} PyTorch-based LSTM networks for real-time streaming data analysis, leveraging CUDA acceleration to optimize model performance and achieve low-latency results in a C++ streaming environment.}
+  \resumeItem{\textbf{Designed and implemented} a PyTorch-based evaluation framework to benchmark and quantify hallucination rates of open-source Large Language Models (LLMs) under various adversarial prompt injections, leveraging expertise in low latency C++ streaming.}
+  \resumeItem{Designed data pipelines to stress-test RAG systems, systematically pinpointing failure modes in context synthesis and generating reproducible safety benchmarks.}
+\resumeItemListEnd
+
+\resumeSubheading
+  {SocietyAI}{2024}
+  {Python, Ray, Redis, Semantic Memory, React}{}
+\resumeItemListStart
+  \resumeItem{Developed an immersive, agentic social simulation environment orchestrating autonomous AI entities capable of long-term memory, planning, and emergent social interactions.}
+  \resumeItem{Designed the state-management backend leveraging Redis to maintain agent context, alongside a vector database architecture for semantic memory retrieval.}
+\resumeItemListEnd
+
+\section*{Professional Experience}
+\resumeSubheading
+  {Social Media Manager \& Content Creator}{Dec 2025 -- Mar 2026}
+  {ASTRAZEN INTERIORS (Freelance)}{United Arab Emirates (Remote)}
+\resumeItemListStart
+  \resumeItem{Automated digital workflows to streamline asset scheduling and deployment, optimizing content delivery pipelines.}
+  \resumeItem{Analyzed audience reach and engagement metrics to enhance performance and direct data-driven digital strategy.}
+\resumeItemListEnd
+
+\resumeSubheading
+  {Multimedia Editor \& Creative Lead}{Sep 2023 -- Nov 2025}
+  {Synergia Sahyadri (Freelance)}{Mangaluru, India}
+\resumeItemListStart
+  \resumeItem{Managed tight deadlines and coordinated complex content workflows across multiple phases for a national-level tech event.}
+  \resumeItem{Collaborated closely with cross-functional organizers to ensure consistent storytelling and visual branding across all digital platforms.}
+\resumeItemListEnd
+
+\section*{Certifications \& Job Simulations}
+\begin{itemize}[leftmargin=0.15in, label={}]
+  \resumeItem{\textbf{AI \& Development:} Build with AI Bootcamp (Google for Developers) $\cdot$ GEN AI Camp (AlgoUniversity) $\cdot$ Prompt Engineering (Dubai Future Foundation)}
+  \resumeItem{\textbf{Software Engineering Simulations:} JPMorgan Chase \& Co. (REST API, Java) $\cdot$ Electronic Arts (Data Structures)}
+  \resumeItem{\textbf{Automation \& Product:} UiPath Automation Workshop $\cdot$ Action AI Startup University: AI Essentials}
+\end{itemize}
+
+
+\resumeSubheading{Targeted Integration Project}{triton, infiniband}{}{}
+  \resumeItem{Architected solution directly utilizing triton, infiniband to achieve target requirements.}
+\end{document}

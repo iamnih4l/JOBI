@@ -36,6 +36,37 @@ router.get('/models', async (req, res) => {
   }
 });
 
+// Helper to escape LaTeX special characters and fix common LLM formatting errors
+function sanitizeLatex(text) {
+  if (!text) return text;
+  
+  let cleaned = text.trim();
+  
+  // Remove \resumeItem{...} wrapper if the LLM hallucinated it
+  if (cleaned.startsWith('\\resumeItem{')) {
+    cleaned = cleaned.substring('\\resumeItem{'.length);
+    if (cleaned.endsWith('}')) {
+      cleaned = cleaned.substring(0, cleaned.length - 1);
+    }
+  }
+
+  // Remove \item if added
+  if (cleaned.startsWith('\\item')) {
+    cleaned = cleaned.replace(/^\\item\s*/, '');
+  }
+  
+  // Balance braces (if the model forgot a closing brace for \textbf etc)
+  let openBraces = (cleaned.match(/\{/g) || []).length;
+  let closeBraces = (cleaned.match(/\}/g) || []).length;
+  if (openBraces > closeBraces) {
+    cleaned += '}'.repeat(openBraces - closeBraces);
+  }
+  
+  return cleaned
+    .replace(/(?<!\\)&/g, '\\&')
+    .replace(/(?<!\\)%/g, '\\%');
+}
+
 // Deterministic fallback bullet adaptation if Ollama is offline
 function deterministicAdaptBullet(originalBullet, jobDescription) {
   const jdLower = jobDescription.toLowerCase();
@@ -48,7 +79,7 @@ function deterministicAdaptBullet(originalBullet, jobDescription) {
 
   let adapted = originalBullet;
   if (keywords.length > 0 && !originalBullet.toLowerCase().includes(keywords[0])) {
-    adapted = originalBullet.replace(/([a-zA-Z\s]+:)/, `$1 Optimized for ${keywords.slice(0, 2).join(' & ')}.`);
+    adapted = originalBullet.replace(/([a-zA-Z\s]+:)/, `$1 Optimized for ${keywords.slice(0, 2).join(' \\& ')}.`);
   }
 
   return {
@@ -92,7 +123,7 @@ Respond ONLY with the JSON object.`;
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout for local inference
+    const timeout = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for queued local inference
 
     const ollamaResponse = await fetch(`${OLLAMA_URL}/api/generate`, {
       method: 'POST',
@@ -127,7 +158,7 @@ Respond ONLY with the JSON object.`;
 
     return res.json({
       success: true,
-      adapted: parsed.adapted || originalBullet,
+      adapted: sanitizeLatex(parsed.adapted || originalBullet),
       rationale: parsed.rationale || 'Tailored to target job description using local Ollama model.',
       keywords: parsed.keywords || [],
       aiUsed: true,
@@ -136,6 +167,9 @@ Respond ONLY with the JSON object.`;
   } catch (err) {
     console.warn(`Local Ollama adaptation fell back to deterministic engine: ${err.message}`);
     const fallback = deterministicAdaptBullet(originalBullet, jobDescription || '');
+    if (fallback.adapted) {
+      fallback.adapted = sanitizeLatex(fallback.adapted);
+    }
     return res.json({
       success: true,
       ...fallback,
