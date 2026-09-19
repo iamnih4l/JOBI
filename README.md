@@ -239,7 +239,9 @@ Jobi utilizes Ollama to rewrite and adapt your resume bullets.
 
 ### Step 5 — Install LaTeX (Optional)
 
-To compile your adapted resume into a PDF, Jobi requires a local LaTeX distribution.
+To compile your adapted resume into a PDF, Jobi requires a local LaTeX distribution. 
+
+> **Note:** *LaTeX not found on PATH. You can still write, edit, and preview resumes. To compile real PDFs locally, install [MiKTeX](https://miktex.org/) (Windows) or TeX Live.*
 
 - **Windows**: Install [MiKTeX](https://miktex.org/download) or TeX Live.
 - **macOS**: `brew install --cask mactex`
