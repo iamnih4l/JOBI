@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<title>Jobi Studio - Resume Adaptation Workspace</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #FAF8F5;
+        color: #1E1B19;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #E2DBD5; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #C8BFB8; }
+
+    /* Fun Light Mode Code Highlights */
+    .latex-keyword { color: #854D0E; font-weight: 700; }
+    .latex-cmd { color: #1D4ED8; font-weight: 600; }
+    .latex-arg { color: #047857; font-weight: 500; }
+    .latex-comment { color: #9CA3AF; font-style: italic; }
+    .latex-str { color: #B45309; }
+
+    .synctex-highlight {
+      animation: synctexWarmGlow 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes synctexWarmGlow {
+      0% { background-color: #FED7AA; }
+      100% { background-color: transparent; }
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-tint": "#b52701",
+            "error-container": "#ffdad6",
+            "surface-container-lowest": "#ffffff",
+            "surface-bright": "#fff8f5",
+            "on-tertiary-fixed": "#002113",
+            "outline": "#8f7069",
+            "surface-container-low": "#faf2ee",
+            "on-tertiary-fixed-variant": "#005236",
+            "on-error-container": "#93000a",
+            "on-error": "#ffffff",
+            "secondary-container": "#3d5dff",
+            "surface": "#fff8f5",
+            "tertiary-fixed-dim": "#4edea3",
+            "inverse-on-surface": "#f7efeb",
+            "primary-fixed": "#ffdad2",
+            "background": "#faf8f5",
+            "primary-fixed-dim": "#ffb4a3",
+            "inverse-primary": "#ffb4a3",
+            "on-secondary-fixed": "#00105b",
+            "on-surface": "#1e1b19",
+            "on-primary": "#ffffff",
+            "outline-variant": "#e3beb6",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#003421",
+            "surface-container-highest": "#e9e1dd",
+            "tertiary-fixed": "#6ffbbe",
+            "secondary-fixed-dim": "#bac3ff",
+            "on-surface-variant": "#5b413a",
+            "on-primary-container": "#5a0e00",
+            "on-secondary-container": "#f4f3ff",
+            "primary-container": "#ff5c35",
+            "inverse-surface": "#33302d",
+            "secondary-fixed": "#dee0ff",
+            "surface-container": "#f4ece8",
+            "on-secondary-fixed-variant": "#002fc9",
+            "on-background": "#1e1b19",
+            "on-primary-fixed-variant": "#8a1c00",
+            "primary": "#ff5c35",
+            "surface-dim": "#e0d8d5",
+            "error": "#ba1a1a",
+            "secondary": "#1840e6",
+            "tertiary-container": "#00a874",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed": "#3d0700",
+            "tertiary": "#006c49",
+            "surface-variant": "#e9e1dd",
+            "surface-container-high": "#eee7e3"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            sans: ["'Plus Jakarta Sans'", "sans-serif"],
+            mono: ["'JetBrains Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#FAF8F5] text-stone-800 font-sans min-h-screen selection:bg-[#FFE5DE] selection:text-[#B52701] antialiased">
+<!-- Friendly Collapsible Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-[#FAF8F5] border-r border-stone-200/80 z-50 flex flex-col justify-between shadow-[2px_0_12px_rgba(0,0,0,0.02)]">
+<div class="flex flex-col">
+<!-- Brand Logo Header -->
+<div class="h-16 px-5 flex items-center justify-between border-b border-stone-200/60 bg-white/70 backdrop-blur">
+<div class="flex items-center gap-2.5">
+<img alt="Jobi Fun Friendly Logo" class="h-8 w-8 rounded-xl shadow-sm ring-2 ring-orange-200" src="https://lh3.googleusercontent.com/aida/AEtjO1VDzpVkuGUSO9385tU1roQ76hmYEQh3soCfQh4YcAvkxJ4ovxD8OxFs4DQUX7bTADSFPcG_6fvsw86sNSLqV9CWUfVs2KWlG59zKTRKMXIHLyoDX48H_9sFfLrFLGzNRBl5QHXT-BhQ30g5oKG3vR2o6vSF7DrS8rrlC4KtxeHVnWOPVEeTOFCfTJM8PMAOdCAKy9SUugwMX97t8MtfwDTEHb6VF6gR7d3RVqL1ri06UZ4NKvj-6SyVnvQ"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-extrabold text-stone-900 tracking-tight text-lg leading-tight">Jobi</span>
+<span class="text-[10px] font-bold px-1.5 py-0.5 bg-orange-100 text-[#FF5C35] rounded-full tracking-wider uppercase">Studio</span>
+</div>
+</div>
+</div>
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-100 text-stone-500 hover:text-stone-800 text-xs font-bold cursor-pointer">?</span>
+</div>
+<!-- Air-Gapped Engine Badge Pill -->
+<div class="px-4 py-3.5">
+<div class="flex items-center justify-between px-3 py-2 bg-emerald-50/80 border border-emerald-200/70 rounded-2xl shadow-sm">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+</span>
+<div class="flex flex-col">
+<span class="text-[11px] font-bold text-emerald-800 tracking-tight flex items-center gap-1">
+                Air-gapped &amp; On-device
+                <span class="text-xs">🔒</span>
+</span>
+<span class="text-[9px] font-medium text-emerald-600 font-mono">100% Zero Data Leaks</span>
+</div>
+</div>
+<span class="text-[10px] font-bold text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200 font-mono">v2.4</span>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-1 px-3 mt-1 font-medium text-sm">
+<a class="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined text-[19px] text-stone-400">space_dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined text-[19px] text-stone-400">description</span>
+<span>Master Resume</span>
+</a>
+<a aria-current="page" class="flex items-center gap-2.5 px-3.5 py-2.5 bg-[#FF5C35]/10 text-[#FF5C35] font-bold rounded-xl shadow-xs transition-all" href="#">
+<span class="material-symbols-outlined text-[19px] text-[#FF5C35]">code</span>
+<span>Adapt Workspace</span>
+<span class="ml-auto w-2 h-2 rounded-full bg-[#FF5C35]"></span>
+</a>
+<a class="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined text-[19px] text-stone-400">compare_arrows</span>
+<span>Change Review</span>
+<span class="ml-auto px-1.5 py-0.5 text-[10px] bg-stone-200/80 text-stone-700 rounded-full font-mono font-bold">6</span>
+</a>
+<a class="flex items-center gap-2.5 px-3.5 py-2.5 text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined text-[19px] text-stone-400">picture_as_pdf</span>
+<span>Export Artifacts</span>
+</a>
+</nav>
+</div>
+<!-- Bottom Telemetry Card -->
+<div class="p-3 m-3 bg-white border border-stone-200/80 rounded-2xl shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-stone-500 uppercase tracking-wider text-[10px]">Local Llama Engine</span>
+<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-extrabold">READY</span>
+</div>
+<div class="h-2 w-full bg-stone-100 rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-gradient-to-r from-emerald-400 to-[#FF5C35] rounded-full w-4/5"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-mono text-stone-500 pt-0.5">
+<span class="flex items-center gap-1 font-semibold text-stone-700">⚡ Llama-3-8B</span>
+<span>8.4 GB RAM</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Wrapper -->
+<div class="pl-64 flex flex-col min-h-screen">
+<!-- Tactile Top Header Bar -->
+<header class="sticky top-0 z-40 h-16 bg-white/90 backdrop-blur-md border-b border-stone-200/70 flex items-center justify-between px-6">
+<div class="flex items-center gap-4">
+<!-- Target Role Selector Dropdown -->
+<div class="flex items-center gap-2 bg-[#FAF8F5] border border-stone-200 px-3 py-1.5 rounded-full hover:border-orange-300 transition-colors cursor-pointer group shadow-xs">
+<div class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF5C35] to-orange-400 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            A
+          </div>
+<span class="font-bold text-stone-800 text-sm">Staff ML Engineer @ Anthropic</span>
+<span class="material-symbols-outlined text-[18px] text-stone-400 group-hover:text-stone-700 transition-colors">expand_more</span>
+</div>
+<!-- Cheerful Match Affinity Pill -->
+<div class="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold shadow-xs">
+<span class="text-sm">✨</span>
+<span>94% Great Match</span>
+<span class="text-[10px] font-mono font-medium text-emerald-600 bg-emerald-100/80 px-1.5 py-0.2 rounded-full ml-1">STRONG FIT</span>
+</div>
+</div>
+<!-- Header Right Actions -->
+<div class="flex items-center gap-3">
+<!-- Latency pill -->
+<div class="hidden lg:flex items-center gap-1.5 px-3 py-1 bg-stone-100/90 border border-stone-200/80 rounded-full text-stone-600 text-xs font-mono font-medium">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Latency: 14ms (Local GPU)</span>
+</div>
+<!-- Tactile Compile Button -->
+<button class="h-9 px-4 bg-[#FF5C35] hover:bg-[#E04B26] active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 rounded-full shadow-[0_3px_12px_rgba(255,92,53,0.3)] transition-all" id="recompile-btn-header">
+<span class="material-symbols-outlined text-[17px]">bolt</span>
+<span>Compile &amp; Export</span>
+</button>
+<!-- User Avatar -->
+<div class="w-9 h-9 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-700 shadow-xs cursor-pointer hover:bg-stone-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+</div>
+</header>
+<!-- Sub-bar for Workspace Controls -->
+<div class="w-full bg-[#FAF8F5] border-b border-stone-200/70 px-6 py-2 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Active File:</span>
+<span class="px-2.5 py-0.5 bg-white border border-stone-200 rounded-full text-xs font-mono font-bold text-stone-800 shadow-xs">resume_anthropic_v2.tex</span>
+<span class="text-xs text-stone-400 font-medium">• Last compiled 2m ago</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-7 px-3 bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 rounded-full text-xs font-semibold flex items-center gap-1 shadow-xs transition-all">
+<span class="material-symbols-outlined text-[15px] text-stone-500">refresh</span>
+<span>Re-Analyze JD</span>
+</button>
+<button class="h-7 px-3 bg-white hover:bg-orange-50/50 border border-stone-200 text-stone-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all" id="toggle-drawer-btn">
+<span class="w-2 h-2 rounded-full bg-[#FF5C35]"></span>
+<span>Diff Review</span>
+<span class="px-1.5 py-0.2 bg-orange-100 text-[#FF5C35] rounded-full font-mono text-[10px] font-bold">6</span>
+</button>
+<div class="h-7 px-2.5 bg-stone-100 border border-stone-200 rounded-full text-stone-600 text-xs font-mono font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-stone-400">timer</span>
+<span id="recompile-time">114ms</span>
+</div>
+</div>
+</div>
+<!-- Main Workspace Studio Grid (3 Columns) -->
+<main class="flex-1 p-4 md:p-6 w-full max-w-[1720px] mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- ==================== LEFT PANEL: Document Tree & Playful JD Chips (lg:col-span-3) ==================== -->
+<div class="lg:col-span-3 flex flex-col gap-4">
+<!-- Document Outline Card -->
+<div class="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between pb-1 border-b border-stone-100">
+<span class="text-xs font-extrabold text-stone-900 tracking-wider uppercase">Document Outline</span>
+<span class="text-[11px] font-mono font-bold text-[#FF5C35] bg-orange-50 px-2 py-0.5 rounded-full">6 SECTIONS</span>
+</div>
+<div class="flex flex-col gap-1 text-sm font-medium">
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FAF8F5] cursor-pointer transition-colors text-stone-600 hover:text-stone-900">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-stone-400">badge</span>
+<span>Header Info</span>
+</div>
+<span class="text-xs font-mono text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-full font-bold">100%</span>
+</div>
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FAF8F5] cursor-pointer transition-colors text-stone-600 hover:text-stone-900">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-stone-400">subject</span>
+<span>Executive Summary</span>
+</div>
+<span class="text-[10px] font-mono font-bold text-[#FF5C35] bg-orange-50 px-2 py-0.5 rounded-full">SYNC</span>
+</div>
+<!-- Selected Active Section -->
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl bg-orange-50 border border-orange-200/80 text-[#FF5C35] font-bold cursor-pointer shadow-2xs">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-[#FF5C35]">work</span>
+<span>Experience</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-mono font-bold">4 roles</span>
+<span class="w-2 h-2 rounded-full bg-[#FF5C35]"></span>
+</div>
+</div>
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FAF8F5] cursor-pointer transition-colors text-stone-600 hover:text-stone-900">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-stone-400">rocket_launch</span>
+<span>Projects</span>
+</div>
+<span class="text-xs font-mono text-stone-400">3 items</span>
+</div>
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FAF8F5] cursor-pointer transition-colors text-stone-600 hover:text-stone-900">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-stone-400">token</span>
+<span>Skills Matrix</span>
+</div>
+<span class="text-xs font-mono text-stone-400">24 skills</span>
+</div>
+<div class="flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FAF8F5] cursor-pointer transition-colors text-stone-600 hover:text-stone-900">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[17px] text-stone-400">school</span>
+<span>Education</span>
+</div>
+<span class="text-xs font-mono text-stone-400">MS / BS</span>
+</div>
+</div>
+</div>
+<!-- Playful JD Keywords Coverage Chips Card -->
+<div class="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between pb-1 border-b border-stone-100">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[17px] text-[#FF5C35]">radar</span>
+<span class="text-xs font-extrabold text-stone-900 tracking-wider uppercase">JD Keyword Match</span>
+</div>
+<span class="text-xs font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">18 / 21</span>
+</div>
+<!-- Progress Meter -->
+<div class="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden p-0.5">
+<div class="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full w-[86%] rounded-full transition-all duration-500 shadow-xs"></div>
+</div>
+<!-- Tactile Sticker Chips -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-emerald-600 font-bold">check_circle</span>
+<span>Distributed Training</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-emerald-600 font-bold">check_circle</span>
+<span>vLLM</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-emerald-600 font-bold">check_circle</span>
+<span>PyTorch</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-emerald-600 font-bold">check_circle</span>
+<span>CUDA</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-emerald-600 font-bold">check_circle</span>
+<span>C++</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-full font-bold text-[11px] shadow-2xs hover:scale-105 transition-transform cursor-default">
+<span class="material-symbols-outlined text-[13px] text-blue-600 font-bold">check_circle</span>
+<span>Triton</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-stone-100 border border-stone-200 text-stone-600 rounded-full font-medium text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
+<span>NCCL Fabrics</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full font-semibold text-[11px] shadow-2xs">
+<span class="text-amber-500 font-bold text-xs">!</span>
+<span>Megatron-LM</span>
+</div>
+</div>
+<!-- Affinity Improvement badge -->
+<div class="bg-[#FAF8F5] border border-stone-200/80 rounded-xl p-2.5 flex items-center justify-between text-xs font-medium text-stone-600">
+<span class="flex items-center gap-1">
+<span class="text-sm">📈</span> Target Lift:
+              </span>
+<span class="text-emerald-700 font-bold font-mono">+22.4% vs Master Base</span>
+</div>
+</div>
+<!-- Quick Action Buttons -->
+<div class="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-sm flex flex-col gap-2">
+<span class="text-xs font-extrabold text-stone-900 tracking-wider uppercase mb-1">Quick Tools</span>
+<button class="w-full text-left px-3 py-2 bg-[#FAF8F5] hover:bg-stone-100 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors border border-stone-200/60">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[17px] text-[#FF5C35]">add_circle</span>
+<span>Add Targeted Project</span>
+</span>
+<kbd class="px-1.5 py-0.5 bg-white border border-stone-200 text-[10px] text-stone-500 rounded font-mono shadow-2xs">⌘K</kbd>
+</button>
+<button class="w-full text-left px-3 py-2 bg-[#FAF8F5] hover:bg-stone-100 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors border border-stone-200/60">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[17px] text-blue-600">sort</span>
+<span>Re-rank by JD Relevance</span>
+</span>
+<span class="text-[10px] text-stone-400 font-mono font-bold">AUTO</span>
+</button>
+<button class="w-full text-left px-3 py-2 bg-[#FAF8F5] hover:bg-stone-100 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors border border-stone-200/60">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[17px] text-purple-600">difference</span>
+<span>Diff with Master Base</span>
+</span>
+<span class="text-[10px] text-stone-400 font-mono font-bold">HEAD</span>
+</button>
+</div>
+</div>
+<!-- ==================== CENTER PANEL: Clean Light-Mode LaTeX Code Editor (lg:col-span-5) ==================== -->
+<div class="lg:col-span-5 flex flex-col bg-white border border-stone-200/90 rounded-2xl shadow-sm overflow-hidden min-w-0">
+<!-- Editor Control Header -->
+<div class="h-11 bg-[#FAF8F5] border-b border-stone-200/80 px-4 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+</div>
+<span class="font-mono text-xs font-bold text-stone-800 ml-2 truncate">resume_anthropic_v2.tex</span>
+<span class="text-[10px] font-mono px-2 py-0.5 bg-white border border-stone-200 text-stone-600 rounded-full font-semibold hidden sm:inline">TeXLive 2024</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 hover:bg-stone-200/70 text-stone-600 hover:text-stone-900 rounded-lg transition-colors" title="Format LaTeX">
+<span class="material-symbols-outlined text-[17px]">format_align_left</span>
+</button>
+<button class="p-1 hover:bg-stone-200/70 text-[#FF5C35] rounded-lg transition-colors" title="SyncTeX Cursor Location">
+<span class="material-symbols-outlined text-[17px]">my_location</span>
+</button>
+</div>
+</div>
+<!-- LaTeX Syntax Viewport -->
+<div class="p-3 text-[12px] font-mono leading-6 overflow-x-auto select-text bg-white text-stone-800 min-h-[460px]">
+<div class="grid grid-cols-[34px_1fr] gap-x-2">
+<div class="text-right text-stone-300 select-none pr-1">1</div>
+<div><span class="latex-keyword">\documentclass</span>[letterpaper,10pt]{<span class="latex-arg">article</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">2</div>
+<div><span class="latex-keyword">\usepackage</span>{<span class="latex-arg">latexsym,fullpage,hyperref,titlesec</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">3</div>
+<div><span class="latex-comment">% ------------------ ANTHROPIC OPTIMIZED ------------------</span></div>
+<div class="text-right text-stone-300 select-none pr-1">4</div>
+<div><span class="latex-keyword">\begin</span>{<span class="latex-arg">document</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">5</div>
+<div><span class="latex-cmd">\heading</span>{<span class="latex-str">Dr. Ethan Vance</span>}{<span class="latex-str">ethan@vance.ai</span>}{<span class="latex-str">github.com/evance-ml</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">6</div>
+<div> </div>
+<div class="text-right text-stone-300 select-none pr-1">7</div>
+<div class="transition-colors duration-300 rounded px-1 -mx-1" id="code-line-7">
+<span class="latex-cmd">\section</span>{<span class="latex-arg">Work Experience</span>}
+              </div>
+<div class="text-right text-stone-300 select-none pr-1">8</div>
+<div class="transition-colors duration-300 rounded px-1 -mx-1" id="code-line-8">
+<span class="latex-cmd">\resumeSubheading</span>
+</div>
+<div class="text-right text-stone-300 select-none pr-1">9</div>
+<div class="pl-4">{<span class="latex-arg">Senior Systems Engineer</span>}{<span class="latex-str">2022 -- Present</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">10</div>
+<div class="pl-4">{<span class="latex-arg">Autonomous AI Lab</span>}{<span class="latex-str">San Francisco, CA</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">11</div>
+<div><span class="latex-cmd">\resumeItemListStart</span></div>
+<!-- Highlighted Adapted Bullet (Line 12) -->
+<div class="text-right text-[#FF5C35] font-bold bg-orange-50 select-none pr-1">+12</div>
+<div class="bg-orange-50/90 text-stone-900 pl-2 py-0.5 rounded-r transition-colors duration-300 border-l-2 border-[#FF5C35]" id="code-line-12">
+<span class="latex-cmd">\resumeItem</span>{<span class="latex-keyword">\textbf</span>{Distributed Inference:} Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.}
+              </div>
+<!-- Highlighted Adapted Bullet (Line 13) -->
+<div class="text-right text-[#FF5C35] font-bold bg-orange-50 select-none pr-1">+13</div>
+<div class="bg-orange-50/90 text-stone-900 pl-2 py-0.5 rounded-r transition-colors duration-300 border-l-2 border-[#FF5C35]" id="code-line-13">
+<span class="latex-cmd">\resumeItem</span>{<span class="latex-keyword">\textbf</span>{Local Architecture:} Architected air-gapped evaluation pipeline eliminating external API calls while preserving deterministic benchmark scoring.}
+              </div>
+<div class="text-right text-stone-300 select-none pr-1">14</div>
+<div class="pl-2"><span class="latex-cmd">\resumeItem</span>{Implemented pipeline-parallel tensor partitioning over InfiniBand fabric across 64x H100 GPUs.}</div>
+<div class="text-right text-stone-300 select-none pr-1">15</div>
+<div><span class="latex-cmd">\resumeItemListEnd</span></div>
+<div class="text-right text-stone-300 select-none pr-1">16</div>
+<div> </div>
+<div class="text-right text-stone-300 select-none pr-1">17</div>
+<div class="transition-colors duration-300 rounded px-1 -mx-1" id="code-line-17">
+<span class="latex-cmd">\resumeSubheading</span>
+</div>
+<div class="text-right text-stone-300 select-none pr-1">18</div>
+<div class="pl-4">{<span class="latex-arg">Distributed Systems Lead</span>}{<span class="latex-str">2020 -- 2022</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">19</div>
+<div class="pl-4">{<span class="latex-arg">Nexus Tensor Core</span>}{<span class="latex-str">Redwood City, CA</span>}</div>
+<div class="text-right text-stone-300 select-none pr-1">20</div>
+<div><span class="latex-cmd">\resumeItemListStart</span></div>
+<div class="text-right text-stone-300 select-none pr-1">21</div>
+<div class="pl-2"><span class="latex-cmd">\resumeItem</span>{Engineered zero-copy streaming protocols in C++ &amp; Rust for continuous token delivery.}</div>
+<div class="text-right text-stone-300 select-none pr-1">22</div>
+<div><span class="latex-cmd">\resumeItemListEnd</span></div>
+<div class="text-right text-stone-300 select-none pr-1">23</div>
+<div> </div>
+<div class="text-right text-stone-300 select-none pr-1">24</div>
+<div class="transition-colors duration-300 rounded px-1 -mx-1" id="code-line-24">
+<span class="latex-cmd">\section</span>{<span class="latex-arg">Key Technical Artifacts</span>}
+              </div>
+<div class="text-right text-stone-300 select-none pr-1">25</div>
+<div><span class="latex-cmd">\resumeSubheading</span>{<span class="latex-arg">Flash-Attention Kernel Port</span>}{<span class="latex-str">PyTorch / Triton</span>}{}{}</div>
+<div class="text-right text-stone-300 select-none pr-1">26</div>
+<div class="pl-2"><span class="latex-cmd">\resumeItem</span>{Synthesized memory-fused backward pass yielding 1.34x compute throughput on Hopper SM90.}</div>
+</div>
+</div>
+<!-- Tactile Inline Rewrite Suggestion Pill Card -->
+<div class="p-3 bg-[#FAF8F5] border-t border-stone-200/80 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded-full bg-orange-100 text-[#FF5C35] flex items-center justify-center text-xs font-bold">✨</span>
+<span class="text-xs font-bold text-stone-900 tracking-tight">On-Device Rewrite Suggestion</span>
+</div>
+<span class="text-[11px] font-mono text-stone-500 font-semibold bg-white border border-stone-200 px-2 py-0.5 rounded-full shadow-2xs">Lines 12-13</span>
+</div>
+<p class="text-xs text-stone-600 leading-relaxed">
+              Adapted line 12: Emphasized <span class="text-[#FF5C35] font-bold">vLLM multi-node cluster &amp; custom CUDA</span> to address Anthropic's low-latency inference requirements.
+            </p>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2">
+<button class="h-7 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-full flex items-center gap-1 shadow-xs transition-all">
+<span class="material-symbols-outlined text-[15px]">check</span>
+<span>Accept Rewrite</span>
+</button>
+<button class="h-7 px-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-600 font-semibold text-xs rounded-full transition-colors">
+                  Keep Original
+                </button>
+</div>
+<button class="h-7 px-3 bg-white hover:bg-orange-50 border border-orange-200 text-[#FF5C35] font-bold text-xs rounded-full flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[15px]">psychology</span>
+<span>Refine locally</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== RIGHT PANEL: Tactile Vector PDF Preview (lg:col-span-4) ==================== -->
+<div class="lg:col-span-4 flex flex-col gap-3">
+<!-- PDF Document Toolbar -->
+<div class="h-11 bg-white border border-stone-200/90 px-3.5 rounded-2xl flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-1.5 text-xs">
+<span class="font-bold text-stone-500 text-[10px] uppercase tracking-wider">PAGE</span>
+<span class="font-mono font-bold text-stone-800 px-2 py-0.5 bg-stone-100 rounded-lg">1 / 1</span>
+<span class="font-bold text-stone-500 text-[10px] uppercase tracking-wider ml-1">ZOOM</span>
+<span class="font-mono font-semibold text-stone-700">100%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+<span>SYNCTEX ACTIVE</span>
+</div>
+<button class="p-1 hover:bg-stone-100 text-stone-500 hover:text-stone-800 rounded-lg" title="Fit to Width">
+<span class="material-symbols-outlined text-[17px]">fit_screen</span>
+</button>
+<button class="p-1 hover:bg-stone-100 text-stone-500 hover:text-stone-800 rounded-lg" title="Open Fullscreen">
+<span class="material-symbols-outlined text-[17px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Tactile Textured Paper Viewport -->
+<div class="w-full bg-[#F4F0EA] border border-stone-300/70 p-4 md:p-5 rounded-2xl flex justify-center shadow-inner overflow-hidden">
+<!-- Rendered Resume Sheet (Physical Paper Aesthetic) -->
+<div class="w-full max-w-[430px] bg-white text-stone-900 p-6 rounded-md shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-stone-200/60 select-text text-[10px] leading-[14px]" id="rendered-pdf">
+<!-- Header -->
+<div class="text-center pb-2 cursor-pointer group" onclick="triggerSyncTex(7)">
+<h1 class="text-[17px] font-extrabold tracking-tight text-stone-900 leading-none">DR. ETHAN VANCE</h1>
+<div class="text-[9px] text-stone-500 mt-1 font-mono">
+                  ethan@vance.ai • (415) 890-2341 • San Francisco, CA • github.com/evance-ml
+                </div>
+<div class="w-full h-[1.5px] bg-stone-900 mt-2"></div>
+</div>
+<!-- Section: Work Experience -->
+<div class="mt-3">
+<div class="cursor-pointer hover:bg-orange-50/60 p-1 rounded-md transition-colors flex items-center justify-between" id="pdf-section-exp" onclick="triggerSyncTex(7)">
+<h2 class="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Work Experience</h2>
+<span class="text-[8px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-mono font-bold">SyncTeX L7</span>
+</div>
+<div class="w-full h-[0.5px] bg-stone-300 mb-1.5"></div>
+<!-- Job 1 -->
+<div class="cursor-pointer hover:bg-orange-50/80 p-1.5 rounded-lg transition-colors mb-2 bg-orange-50/30 border border-orange-100" id="pdf-job-1" onclick="triggerSyncTex(12)">
+<div class="flex justify-between items-baseline font-bold text-stone-900">
+<span>Senior Systems Engineer — Autonomous AI Lab</span>
+<span class="text-[9px] text-stone-500 font-normal font-mono">2022 – Present</span>
+</div>
+<ul class="list-disc pl-3 text-stone-700 space-y-1 mt-1 text-[9px] leading-[13px]">
+<li class="bg-emerald-100/60 text-stone-900 p-1 rounded-md border-l-2 border-emerald-500 font-medium">
+<span class="font-bold text-emerald-950">Distributed Inference:</span> Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels.
+                    </li>
+<li class="bg-emerald-100/60 text-stone-900 p-1 rounded-md border-l-2 border-emerald-500 font-medium">
+<span class="font-bold text-emerald-950">Local Architecture:</span> Architected air-gapped evaluation pipeline eliminating external API calls while preserving deterministic benchmark scoring.
+                    </li>
+<li class="pl-0.5">
+                      Implemented pipeline-parallel tensor partitioning over InfiniBand fabric across 64x H100 GPUs.
+                    </li>
+</ul>
+</div>
+<!-- Job 2 -->
+<div class="cursor-pointer hover:bg-stone-50 p-1 rounded transition-colors" id="pdf-job-2" onclick="triggerSyncTex(17)">
+<div class="flex justify-between items-baseline font-bold text-stone-900">
+<span>Distributed Systems Lead — Nexus Tensor Core</span>
+<span class="text-[9px] text-stone-500 font-normal font-mono">2020 – 2022</span>
+</div>
+<ul class="list-disc pl-3 text-stone-600 space-y-1 mt-1 text-[9px] leading-[13px]">
+<li>Engineered zero-copy streaming protocols in C++ &amp; Rust for continuous token delivery.</li>
+<li>Reduced cold-start VM orchestration overhead by 68% via pre-allocated GPU unified memory.</li>
+</ul>
+</div>
+</div>
+<!-- Section: Selected Projects -->
+<div class="mt-3">
+<div class="cursor-pointer hover:bg-stone-50 p-1 rounded-md transition-colors flex items-center justify-between" id="pdf-section-proj" onclick="triggerSyncTex(24)">
+<h2 class="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Selected Projects</h2>
+<span class="text-[8px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-mono font-bold">SyncTeX L24</span>
+</div>
+<div class="w-full h-[0.5px] bg-stone-300 mb-1.5"></div>
+<div class="mb-1.5 p-1">
+<div class="flex justify-between items-baseline font-bold text-stone-900">
+<span>Flash-Attention Kernel Port (Triton / CUDA)</span>
+<span class="text-[8px] text-stone-400 font-mono">github.com/evance/fa-sm90</span>
+</div>
+<p class="text-stone-600 text-[9px] leading-[12px] mt-0.5">
+                    Synthesized memory-fused backward pass yielding 1.34x compute throughput on Hopper SM90 architectures.
+                  </p>
+</div>
+</div>
+<!-- Section: Core Competencies -->
+<div class="mt-3 p-1">
+<h2 class="text-[11px] font-bold tracking-wider text-stone-900 uppercase">Skills &amp; Systems Matrix</h2>
+<div class="w-full h-[0.5px] bg-stone-300 mb-1.5"></div>
+<div class="text-[9px] text-stone-600 leading-[14px]">
+<span class="font-bold text-stone-900">Core Systems:</span> PyTorch, vLLM, CUDA, Triton, TensorRT-LLM, NCCL, C++, Rust.<br/>
+<span class="font-bold text-stone-900">Infrastructure:</span> Slurm, Kubernetes, InfiniBand, Linux Kernel eBPF, Docker.
+                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ==================== BOTTOM BAR / DIFF DRAWER: Tactile Diff Cards ==================== -->
+<div class="w-full bg-white border border-stone-200/90 rounded-2xl p-4 md:p-5 mt-5 shadow-sm transition-all duration-300" id="diff-drawer">
+<div class="flex flex-wrap items-center justify-between pb-3 border-b border-stone-100 gap-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-orange-100 text-[#FF5C35] flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">compare_arrows</span>
+</div>
+<div>
+<h3 class="font-bold text-stone-900 text-sm md:text-base">Semantic Diff Review</h3>
+<p class="text-xs text-stone-500">Fine-tune each auto-targeted modification before final compilation.</p>
+</div>
+<div class="flex items-center gap-1.5 ml-2">
+<span class="text-xs font-bold font-mono px-2 py-0.5 bg-orange-50 text-[#FF5C35] border border-orange-200 rounded-full">6 PENDING</span>
+<span class="text-xs font-bold font-mono px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">4 ACCEPTED</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-full flex items-center gap-1.5 shadow-xs transition-all">
+<span class="material-symbols-outlined text-[16px]">done_all</span>
+<span>Accept All 6</span>
+</button>
+<button class="p-1 hover:bg-stone-100 text-stone-400 hover:text-stone-700 rounded-lg transition-colors" id="close-drawer-btn">
+<span class="material-symbols-outlined text-[20px]">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+<!-- Diff Card Comparison Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 mt-3 text-xs">
+<!-- Original Master Bullet Card -->
+<div class="md:col-span-5 bg-[#FAF8F5] border border-stone-200 p-3.5 rounded-xl flex flex-col justify-between gap-2 shadow-2xs">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">Original Master Resume Bullet</span>
+<span class="px-2 py-0.5 bg-rose-100 text-rose-700 font-mono font-bold text-[10px] rounded-full">- REMOVE</span>
+</div>
+<div class="p-2.5 bg-white border border-stone-200/80 rounded-lg text-stone-600 leading-relaxed line-through decoration-rose-400">
+                "Led internal ML deployment team maintaining containerized HuggingFace transformers models across AWS EC2 instances, achieving 99.8% uptime."
+              </div>
+</div>
+<div class="text-[11px] text-stone-500">
+<span class="font-bold text-rose-600">Diagnosis:</span> Lacks low-latency systems &amp; multi-node clusters requested in Anthropic JD.
+            </div>
+</div>
+<!-- Arrow Indicator -->
+<div class="md:col-span-1 hidden md:flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-orange-100 text-[#FF5C35] flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</div>
+</div>
+<!-- Adapted Target Bullet Card -->
+<div class="md:col-span-6 bg-orange-50/40 border border-orange-200 p-3.5 rounded-xl flex flex-col justify-between gap-2 shadow-2xs">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5C35]">Adapted (Llama-3 On-Device Air-Gapped)</span>
+<span class="text-xs">✨</span>
+</div>
+<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px] rounded-full">+ OPTIMIZED</span>
+</div>
+<div class="p-2.5 bg-white border border-orange-200 rounded-lg text-stone-900 font-semibold leading-relaxed shadow-xs">
+                "Optimized multi-node vLLM cluster serving 70B parameter models, reducing p99 latency from 140ms to 32ms using custom CUDA kernels."
+              </div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-orange-100">
+<div class="flex items-center gap-1 text-[11px] font-mono text-stone-600">
+<span class="font-bold text-stone-800">Keywords:</span> vLLM • Low-latency • CUDA
+              </div>
+<div class="flex items-center gap-2">
+<button class="h-7 px-3 bg-[#FF5C35] hover:bg-[#E04B26] text-white font-bold text-xs rounded-full flex items-center gap-1 shadow-xs active:scale-95 transition-all">
+<span>Approve ✨</span>
+</button>
+<button class="h-7 px-3 bg-white hover:bg-stone-100 border border-stone-300 text-stone-600 font-semibold text-xs rounded-full transition-colors">
+                  Skip
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Interactive Scripts -->
+<script>
+    function triggerSyncTex(lineNumber) {
+      const lines = [7, 8, 12, 13, 17, 24];
+      lines.forEach(num => {
+        const el = document.getElementById('code-line-' + num);
+        if (el) {
+          el.classList.remove('synctex-highlight');
+        }
+      });
+
+      const target = document.getElementById('code-line-' + lineNumber);
+      if (target) {
+        target.classList.add('synctex-highlight');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      const timeEl = document.getElementById('recompile-time');
+      if (timeEl) {
+        timeEl.textContent = '108ms';
+        setTimeout(() => { timeEl.textContent = '114ms'; }, 800);
+      }
+    }
+
+    // Toggle Diff Drawer
+    const drawerBtn = document.getElementById('toggle-drawer-btn');
+    const closeBtn = document.getElementById('close-drawer-btn');
+    const diffDrawer = document.getElementById('diff-drawer');
+
+    function toggleDrawer() {
+      if (diffDrawer.classList.contains('hidden')) {
+        diffDrawer.classList.remove('hidden');
+      } else {
+        diffDrawer.classList.add('hidden');
+      }
+    }
+
+    if (drawerBtn) drawerBtn.addEventListener('click', toggleDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', toggleDrawer);
+
+    // Mock Recompile Buttons
+    const headerRecompile = document.getElementById('recompile-btn-header');
+    if (headerRecompile) {
+      headerRecompile.addEventListener('click', () => {
+        const timeEl = document.getElementById('recompile-time');
+        if (timeEl) {
+          timeEl.textContent = 'Compiling...';
+          setTimeout(() => {
+            timeEl.textContent = (85 + Math.floor(Math.random() * 30)) + 'ms';
+          }, 400);
+        }
+      });
+    }
+  </script>
+</body></html>
